@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify
 import user
 import message
-from utils import Result
+from utils import Result, InitFS
 
 app = Flask(__name__)
+
+# Create data directories to store files
+# You can modify this function to accept custom directory name and files
+InitFS()
 
 def getErrorCode(result: Result)->int:
     
@@ -26,7 +30,7 @@ def createUser():
     email = data['email']
     password = data['password']
     
-    result, u = user.SaveUser(name, surname, email, password)
+    result, u = user.Save(name, surname, email, password)
 
     if result is not Result.OK:
         code = getErrorCode(result)
@@ -55,7 +59,7 @@ def send():
     sender = data['sender']
     body = data['body']
 
-    result,m = message.SaveMessage(sender, receiver, body)
+    result,m = message.Save(sender, receiver, body)
 
     if result is not Result.OK:
         code = getErrorCode(result)
@@ -63,10 +67,10 @@ def send():
     else:
         return m, 201
 
-@app.route('/inbox/<receiverID>', methods=['GET'])
-def receive(receiverID: str):
+@app.route('/inbox/<receiver>', methods=['GET'])
+def getMessages(receiver: str):
 
-    result,mxs = message.GetMessages(receiverID)
+    result,mxs = message.Retrieve(receiver)
 
     if result is not Result.OK:
         code = getErrorCode(result)
@@ -86,6 +90,3 @@ def deleteUser():
     else:
         user.Delete(u['id'])
         return '', 204
-
-if __name__ == '__main__':
-    app.run(host='localhost',port=5000,debug=True)

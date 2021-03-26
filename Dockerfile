@@ -10,7 +10,7 @@ RUN touch data/messages.txt
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 # copy all source code to WORKDIR
-COPY *.py .
+COPY *.py ./
 # export the FLASK_APP env variable
 ENV FLASK_APP=server.py
 # expose the port to allow host access
