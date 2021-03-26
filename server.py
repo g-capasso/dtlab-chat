@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import user
 import message
 from utils import Result, InitFS
+import base64
 
 app = Flask(__name__)
 
@@ -21,6 +22,16 @@ def getErrorCode(result: Result)->int:
         code = 500
 
     return code
+
+def decodeBasicAuth(authHeader: str) -> (str, str):
+    fields = authHeader.split(' ')
+    # Check if  header is for Basic Auth
+    if len(fields) != 2 or fields[0] != 'Basic':
+        return '',''
+
+    encodedCredentials = fields[1]
+    decodedCredentials = base64.b64decode(encodedCredentials).decode('utf8')
+    return decodedCredentials.split(':')
 
 @app.route('/user', methods=['POST'])
 def createUser():
@@ -81,8 +92,14 @@ def getMessages(receiver: str):
 @app.route('/user', methods=['DELETE'])
 def deleteUser():
 
-    email = request.authorization['username']
-    password = request.authorization['password']
+    # EASY WAY
+    # email = request.authorization['username']
+    # password = request.authorization['password']
+   
+    authHeader = request.headers['authorization']
+    #Custom function to process Basic Auth
+    email, password = decodeBasicAuth(authHeader)
+    
     result, u = user.Login(email, password)
     if result is not Result.OK:
         code = getErrorCode(result)

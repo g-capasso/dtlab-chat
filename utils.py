@@ -23,6 +23,5 @@ def InitFS():
     else:
         if not isfile(USERS_FILE_PATH):
             mknod(USERS_FILE_PATH)
-
         if not isfile(MESSAGES_FILE_PATH):
             mknod(MESSAGES_FILE_PATH)
