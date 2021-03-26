@@ -25,7 +25,7 @@ def getErrorCode(result: Result)->int:
 
 def decodeBasicAuth(authHeader: str) -> (str, str):
     fields = authHeader.split(' ')
-    # Check if  header is for Basic Auth
+    # Check if header is for Basic Auth
     if len(fields) != 2 or fields[0] != 'Basic':
         return '',''
 
