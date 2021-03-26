@@ -1,1 +1,0 @@
-{"id": "62379cb4-0415-4e4a-a771-1b802237fd8f", "sender": "c734bdad-bef7-4b8d-83c3-8fd8a640b592", "receiver": "8adfa1ea-31fd-4ec0-b5fd-dcd08853b3f8", "created": "2021-03-22T23:12:30.337732", "body": "ciao"}

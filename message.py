@@ -1,19 +1,17 @@
 import uuid
 from datetime import datetime
-from utils import Result
+from utils import Result, MESSAGES_FILE_PATH
 import json
 import user
 
-FILE_NAME = 'data/messages.txt'
-
 def saveMessageToFile(message: dict) -> None:
-    with open(FILE_NAME, 'a' ) as f:
+    with open(MESSAGES_FILE_PATH, 'a' ) as f:
         message.update({'id':str(message['id'])})
         print(json.dumps(message), file=f)
 
 def getMessagesByReceiver(receiverID: str)->list:
     res = []
-    with open(FILE_NAME, 'r')as f:
+    with open(MESSAGES_FILE_PATH, 'r')as f:
         messages = f.readlines()
         for message in messages:
             m = json.loads(message)

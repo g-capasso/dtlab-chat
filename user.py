@@ -1,14 +1,13 @@
 import uuid
 import bcrypt
 from datetime import datetime
-from utils import Result
+from utils import Result, USERS_FILE_PATH
 import json
 
-FILE_NAME = 'data/users.txt'
 
 #Metodo di utilità per cercare un utente dato in ingresso un ID. Se non esiste viene ritornato None
 def findUserByID(id: str) -> dict:
-    with open(FILE_NAME, 'r') as f:
+    with open(USERS_FILE_PATH, 'r') as f:
         users = f.readlines()
         for user in users:
             u = json.loads(user)
@@ -18,7 +17,7 @@ def findUserByID(id: str) -> dict:
         return None
 
 def findUserByEmail(email: str) -> dict:
-    with open(FILE_NAME, 'r') as f:
+    with open(USERS_FILE_PATH, 'r') as f:
         users = f.readlines()
         for user in users:
             u = json.loads(user)
@@ -28,7 +27,7 @@ def findUserByEmail(email: str) -> dict:
         return None
 
 def saveUserToFile(user: dict) -> None:
-    with open(FILE_NAME, 'a' ) as f:
+    with open(USERS_FILE_PATH, 'a' ) as f:
         user.update({'password': user['password'].decode('utf8')})
         user.update({'id':str(user['id'])})
         print(json.dumps(user), file=f)
@@ -63,14 +62,14 @@ def Login(email: str, password: str)->(Result, dict):
 
 def Delete(id: str)-> None:
     newList = []
-    with open(FILE_NAME, 'r') as f:
+    with open(USERS_FILE_PATH, 'r') as f:
         users = f.readlines()
         for user in users:
             u = json.loads(user)
             if u['id'] != id:
                 newList.append(u)
 
-    with open(FILE_NAME, 'w')as f:
+    with open(USERS_FILE_PATH, 'w')as f:
         for user in newList:
             print(user, file=f)
 
