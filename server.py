@@ -1,26 +1,17 @@
-# Questo modulo utilizza Flask per realizzare un web server. L'applicazione può essere eseguita in vari modi
-# FLASK_APP=server.py FLASK_ENV=development flask run
-# python server.py se aggiungiamo a questo file app.run()
-
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import user
+import message
+from utils import Result
 
-# viene creata l'applicazione con il nome del modulo corrente.
 app = Flask(__name__)
 
-# getErrorCode è una funzione di utilità che mappa i valori ritornati dal modulo user con quelli del
-# protocollo HTTP in caso di errore. 
-# 404 - Not Found: una risorsa non è stata trovata sul server;
-# 403 - Forbidden: accesso negato;
-# 409 - Conflict: è violato un vincolo di unicità. Ad esempio, esiste già un utente con la stessa mail registrata;
-# Come ultima spiaggia è buona norma ritornare "500 - Internal Server Error" per indicare che qualcosa è andato storto
-def getErrorCode(result: user.Result)->int:
+def getErrorCode(result: Result)->int:
     
-    if result is user.Result.NOT_FOUND:
+    if result is Result.NOT_FOUND:
         code = 404
-    elif result is user.Result.NOT_AUTHORIZED:
+    elif result is Result.NOT_AUTHORIZED:
         code = 403
-    elif result is user.Result.DUPLICATED:
+    elif result is Result.DUPLICATED:
         code = 409
     else:
         code = 500
@@ -37,12 +28,64 @@ def createUser():
     
     result, u = user.SaveUser(name, surname, email, password)
 
-    if result is not user.Result.OK:
+    if result is not Result.OK:
         code = getErrorCode(result)
         return '', code
     else:
         return u, 201
 
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+    
+    result, u = user.Login(email, password)
+
+    if result is not Result.OK:
+        code = getErrorCode(result)
+        return '', code
+    else:
+        return u, 200
+
+@app.route('/inbox', methods=['POST'])
+def send():
+    data = request.get_json()
+    receiver = data['receiver']
+    sender = data['sender']
+    body = data['body']
+
+    result,m = message.SaveMessage(sender, receiver, body)
+
+    if result is not Result.OK:
+        code = getErrorCode(result)
+        return '', code
+    else:
+        return m, 201
+
+@app.route('/inbox/<receiverID>', methods=['GET'])
+def receive(receiverID: str):
+
+    result,mxs = message.GetMessages(receiverID)
+
+    if result is not Result.OK:
+        code = getErrorCode(result)
+        return '', code
+    else:
+        return jsonify(mxs), 200
+
+@app.route('/user', methods=['DELETE'])
+def deleteUser():
+
+    email = request.authorization['username']
+    password = request.authorization['password']
+    result, u = user.Login(email, password)
+    if result is not Result.OK:
+        code = getErrorCode(result)
+        return '', code
+    else:
+        user.Delete(u['id'])
+        return '', 204
 
 if __name__ == '__main__':
     app.run(host='localhost',port=5000,debug=True)
