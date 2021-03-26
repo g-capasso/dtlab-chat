@@ -60,4 +60,4 @@ def Delete(id: str)-> None:
 
     with open(USERS_FILE_PATH, 'w')as f:
         for user in newList:
-            print(user, file=f)
+            print(json.dumps(user), file=f)
